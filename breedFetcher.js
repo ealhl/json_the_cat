@@ -1,23 +1,20 @@
 const request = require("request");
 
-let breedName = process.argv[2];
-if (process.argv.length === 2) {
-  breedName = "Siberian";
-}
-// console.log("breedName", breedName);
-request(
-  `https://api.thecasstapi.com/v1/breeds/search?q=${breedName}`,
-  (error, response, body) => {
-    if (response) {
-      if (body.length > 2) {
+const fetchBreedDescription = function(breedName, callback) {
+  request(
+    `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`,
+    (error, response, body) => {
+      if (error) return callback(error, null);
+
+      if (response && body.length <= 2)
+        return callback(error, null);
+
+      if (!error && response && body.length > 2) {
         const data = JSON.parse(body);
-        console.log(data);
-      } else {
-        console.log("Breed not found");
+        callback(error, data[0].description);
       }
-    } else {
-      console.log("Request Failed");
-      console.log("error", error.code);
     }
-  }
-);
+  );
+};
+
+module.exports = { fetchBreedDescription };
